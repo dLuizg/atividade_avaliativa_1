@@ -41,7 +41,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
       senha: _senhaController.text,
     );
 
-    UsuarioMockStore.usuarios.add(novoUsuario);
+    await UsuarioMockStore.adicionar(novoUsuario);
 
     await Future.delayed(const Duration(seconds: 1));
 
@@ -145,6 +145,8 @@ class _CadastroScreenState extends State<CadastroScreen> {
                               );
                               if (!emailRegex.hasMatch(value.trim()))
                                 return 'E-mail inválido';
+                              if (UsuarioMockStore.emailExiste(value.trim()))
+                                return 'E-mail já cadastrado';
                               return null;
                             },
                           ),
