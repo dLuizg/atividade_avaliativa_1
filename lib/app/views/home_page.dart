@@ -1,10 +1,9 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:atividade_avaliativa_1/app/models/usuario_model.dart';
+import '../models/usuario_model.dart';
+import '../viewmodels/home_viewmodel.dart';
 
 class HomePage extends StatefulWidget {
-  final UsuarioModel usuario; // 👈 recebe quem logou
+  final UsuarioModel usuario;
   const HomePage({super.key, required this.usuario});
 
   @override
@@ -12,35 +11,39 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String _hora = "";
+  late final HomeViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
-    _hora = _formatarDateTime(DateTime.now());
-    Timer.periodic(const Duration(seconds: 1), (t) => _atualizaHora());
+    _viewModel = HomeViewModel();
+    _viewModel.addListener(() => setState(() {}));
   }
 
-  void _atualizaHora() {
-    setState(() => _hora = _formatarDateTime(DateTime.now()));
+  @override
+  void dispose() {
+    _viewModel.dispose();
+    super.dispose();
   }
-
-  String _formatarDateTime(DateTime dt) =>
-      DateFormat('dd/MM - HH:mm:ss').format(dt);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 158, 158, 158),
-        title: const Text(""),
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
+        title: const Text('Home'),
         actions: [
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 20),
-              child: Text(_hora,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w500)),
+              child: Text(
+                _viewModel.horaAtual,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
           ),
         ],
@@ -50,24 +53,28 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const Icon(Icons.home, size: 64, color: Colors.indigo),
+              const SizedBox(height: 20),
               Text(
-                'Bem-vindo(a), ${widget.usuario.nome}!', // 👈 nome real
-                style: const TextStyle(fontSize: 36),
+                'Bem-vindo(a),\n${widget.usuario.nome}!',
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20),
-              const Icon(Icons.home, size: 50, color: Colors.black),
             ],
           ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.email), label: 'Email'),
+          BottomNavigationBarItem(icon: Icon(Icons.email), label: 'E-mail'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Configurações'),
+            icon: Icon(Icons.settings),
+            label: 'Configurações',
+          ),
         ],
       ),
     );

@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:atividade_avaliativa_1/app/data/usuario_mock_store.dart';
-import 'package:atividade_avaliativa_1/app/views/login_screen.dart';
+import 'app/views/splash_page.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await UsuarioMockStore.init(); // carrega do disco (ou seed na 1ª vez)
+void main() {
   runApp(const MyApp());
 }
 
@@ -15,10 +12,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Atividade Avaliativa',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
       ),
-      home: const LoginScreen(),
+      home: const SplashScreen(),
     );
   }
 }

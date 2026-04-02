@@ -1,7 +1,5 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:atividade_avaliativa_1/app/models/usuario_model.dart';
-import 'package:atividade_avaliativa_1/app/data/usuario_mock_store.dart';
+import '../viewmodels/signup_viewmodel.dart';
 
 class CadastroScreen extends StatefulWidget {
   const CadastroScreen({super.key});
@@ -21,6 +19,8 @@ class _CadastroScreenState extends State<CadastroScreen> {
   bool _confirmaSenhaVisivel = false;
   bool _carregando = false;
 
+  final _viewModel = SignupViewModel();
+
   @override
   void dispose() {
     _nomeController.dispose();
@@ -32,32 +32,23 @@ class _CadastroScreenState extends State<CadastroScreen> {
 
   void _cadastrar() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() => _carregando = true);
 
-    final novoUsuario = UsuarioModel(
+    await _viewModel.cadastrar(
       nome: _nomeController.text.trim(),
       email: _emailController.text.trim(),
       senha: _senhaController.text,
     );
 
-    await UsuarioMockStore.adicionar(novoUsuario);
-
-    await Future.delayed(const Duration(seconds: 1));
-
     setState(() => _carregando = false);
-
     if (!mounted) return;
 
-    // Mostra a mensagem de sucesso
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Cadastro realizado com sucesso!'),
         backgroundColor: Colors.green,
       ),
     );
-
-    // Volta para a tela anterior (Login)
     Navigator.pop(context);
   }
 
@@ -97,7 +88,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
                   style: TextStyle(color: Colors.grey),
                 ),
                 const SizedBox(height: 28),
-
                 Card(
                   elevation: 2,
                   shape: RoundedRectangleBorder(
@@ -109,7 +99,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          // Campo Nome
                           TextFormField(
                             controller: _nomeController,
                             textCapitalization: TextCapitalization.words,
@@ -127,8 +116,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
                             },
                           ),
                           const SizedBox(height: 16),
-
-                          // Campo E-mail
                           TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
@@ -145,14 +132,12 @@ class _CadastroScreenState extends State<CadastroScreen> {
                               );
                               if (!emailRegex.hasMatch(value.trim()))
                                 return 'E-mail inválido';
-                              if (UsuarioMockStore.emailExiste(value.trim()))
+                              if (_viewModel.emailExiste(value.trim()))
                                 return 'E-mail já cadastrado';
                               return null;
                             },
                           ),
                           const SizedBox(height: 16),
-
-                          // Campo Senha
                           TextFormField(
                             controller: _senhaController,
                             obscureText: !_senhaVisivel,
@@ -180,8 +165,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
                             },
                           ),
                           const SizedBox(height: 16),
-
-                          // Campo Confirmar Senha
                           TextFormField(
                             controller: _confirmaSenhaController,
                             obscureText: !_confirmaSenhaVisivel,
@@ -210,8 +193,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
                             },
                           ),
                           const SizedBox(height: 28),
-
-                          // Botão Cadastrar
                           SizedBox(
                             width: double.infinity,
                             height: 48,
@@ -240,8 +221,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-
-                          // Botão Voltar ao Login
                           SizedBox(
                             width: double.infinity,
                             height: 48,

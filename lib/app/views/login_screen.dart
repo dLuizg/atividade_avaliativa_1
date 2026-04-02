@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:atividade_avaliativa_1/app/data/usuario_mock_store.dart';
-import 'package:atividade_avaliativa_1/app/views/home_page.dart';
-import 'package:atividade_avaliativa_1/app/views/cadastro_page.dart';
+import '../viewmodels/login_viewmodel.dart';
+import 'home_page.dart';
+import 'cadastro_page.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,32 +15,23 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailCtrl = TextEditingController();
   final _senhaCtrl = TextEditingController();
   bool _obscure = true;
-  bool _carregando = false;
-  String? _erro;
+  final _viewModel = LoginViewModel();
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() { _carregando = true; _erro = null; });
-
-    await Future.delayed(const Duration(milliseconds: 600));
-
-    final usuario = UsuarioMockStore.login(
+    final usuario = await _viewModel.login(
       _emailCtrl.text.trim(),
       _senhaCtrl.text,
     );
-
     if (!mounted) return;
-    setState(() => _carregando = false);
-
-    if (usuario == null) {
-      setState(() => _erro = 'E-mail ou senha incorretos.');
-      return;
+    if (usuario != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => HomePage(usuario: usuario)),
+      );
+    } else {
+      setState(() {});
     }
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => HomePage(usuario: usuario)),
-    );
   }
 
   @override
@@ -87,8 +78,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               prefixIcon: Icon(Icons.email_outlined),
                               border: OutlineInputBorder(),
                             ),
-                            validator: (v) =>
-                                (v == null || v.trim().isEmpty) ? 'Informe o e-mail' : null,
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? 'Informe o e-mail'
+                                : null,
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
@@ -99,25 +91,36 @@ class _LoginScreenState extends State<LoginScreen> {
                               prefixIcon: const Icon(Icons.lock_outline),
                               border: const OutlineInputBorder(),
                               suffixIcon: IconButton(
-                                icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility),
-                                onPressed: () => setState(() => _obscure = !_obscure),
+                                icon: Icon(
+                                  _obscure
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
+                                onPressed: () =>
+                                    setState(() => _obscure = !_obscure),
                               ),
                             ),
-                            validator: (v) =>
-                                (v == null || v.isEmpty) ? 'Informe a senha' : null,
+                            validator: (v) => (v == null || v.isEmpty)
+                                ? 'Informe a senha'
+                                : null,
                             onFieldSubmitted: (_) => _login(),
                           ),
-                          if (_erro != null) ...[
+                          if (_viewModel.erro != null) ...[
                             const SizedBox(height: 12),
-                            Text(_erro!,
-                                style: const TextStyle(color: Colors.red, fontSize: 13)),
+                            Text(
+                              _viewModel.erro!,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 13,
+                              ),
+                            ),
                           ],
                           const SizedBox(height: 24),
                           SizedBox(
                             width: double.infinity,
                             height: 48,
                             child: ElevatedButton(
-                              onPressed: _carregando ? null : _login,
+                              onPressed: _viewModel.carregando ? null : _login,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.indigo,
                                 foregroundColor: Colors.white,
@@ -125,13 +128,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              child: _carregando
+                              child: _viewModel.carregando
                                   ? const SizedBox(
-                                      width: 22, height: 22,
+                                      width: 22,
+                                      height: 22,
                                       child: CircularProgressIndicator(
-                                          color: Colors.white, strokeWidth: 2),
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
                                     )
-                                  : const Text('Entrar', style: TextStyle(fontSize: 16)),
+                                  : const Text(
+                                      'Entrar',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -141,7 +150,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: OutlinedButton(
                               onPressed: () => Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => const CadastroScreen()),
+                                MaterialPageRoute(
+                                  builder: (_) => const CadastroScreen(),
+                                ),
                               ),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.indigo,
@@ -150,7 +161,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              child: const Text('Criar conta', style: TextStyle(fontSize: 16)),
+                              child: const Text(
+                                'Criar conta',
+                                style: TextStyle(fontSize: 16),
+                              ),
                             ),
                           ),
                         ],
